@@ -30,10 +30,10 @@ const cTpl = `<div id="configModalBtn" data-toggle="modal" style="width:60px;hei
     </div>
 </div>`;
 
-const scriptTpl = `const auth_data = JSON.stringify({username: 'jackson', password: '123456'});
+const scriptTpl = `const auth_data = JSON.stringify({username: 'dia', password: '123456'});
 // request auth info.
 $.ajax({
-    url: 'http://localhost/login',
+    url: 'http://localhost:8000/login',
     method: 'post',
     data: auth_data,
     ContentType: "application/json",
@@ -72,18 +72,25 @@ function _configOnload() {
         window.eval(initScriptStr);
     }
 
+    _configUrls = $('.sample-request-url');
+
     const requestHostStr = localStorage.getItem('requestHost');
     if (typeof requestHostStr === 'string') {
         _configLastHost = requestHostStr;
-    }
-
-    _configUrls = $('.sample-request-url');
-    if (_configUrls.length > 0) {
-        const $urlInput = $(_configUrls[0]);
-        const url = $urlInput.val();
-        const matches = url.match(_configPtn);
-        if (matches.length === 2) {
-            _configLastHost = matches[1];
+        for (let i = 0; i < _configUrls.length; i++) {
+            const $urlInput = $(_configUrls[i]);
+            let url = $urlInput.val();
+            url = url.replace(_configPtn, `//${requestHostStr}/`);
+            $urlInput.val(url);
+        }
+    } else {
+        if (_configUrls.length > 0) {
+            const $urlInput = $(_configUrls[0]);
+            const url = $urlInput.val();
+            const matches = url.match(_configPtn);
+            if (matches.length === 2) {
+                _configLastHost = matches[1];
+            }
         }
     }
 
@@ -135,13 +142,6 @@ export function InitConfigHelper() {
         }
         const host = $('#configHost').val();
         if (host) {
-            for (let i = 0; i < _configUrls.length; i++) {
-                const $urlInput = $(_configUrls[i]);
-                let url = $urlInput.val();
-                url = url.replace(_configPtn, `//${host}/`);
-                $urlInput.val(url);
-            }
-
             localStorage.setItem('requestHost', host);
         }
 
