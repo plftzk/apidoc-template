@@ -6,6 +6,7 @@ Add config panel to modify request host and header params.
 
 ```javascript
 const auth_data = JSON.stringify({username: 'jackson', password: '123456'});
+// request auth info.
 $.ajax({
     url: 'http://localhost/login',
     method: 'post',
