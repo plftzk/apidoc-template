@@ -30,17 +30,18 @@ const cTpl = `<div id="configModalBtn" data-toggle="modal" style="width:60px;hei
     </div>
 </div>`;
 
-const scriptTpl = `const auth_data = JSON.stringify({username: 'dia', password: '123456'});
+const scriptTpl = `const auth_data = JSON.stringify({username: 'jack', password: '123456'});
 // request auth info.
 $.ajax({
-    url: 'http://localhost:8000/login',
+    url: 'http://127.0.0.1:16888/api/login',
     method: 'post',
     data: auth_data,
-    ContentType: "application/json",
+    headers: {'Content-Type': 'application/json'},
     type: 'json',
     dataType: 'json',
+    processData: false,
     success(resp) {
-        if (resp.errcode === 0) {
+        if (resp.code === 0) {
             $('input[data-name="token"]').val(resp.data.token);
             docInitCallbackFunc(); //  * Need to keep!!!
         }
@@ -54,21 +55,25 @@ const _configVarMap = {};
 const _configPtn = new RegExp('//(.*?)/');
 
 function useScriptTpl() {
-    $('#docInitScript').val(scriptTpl);
+    $('#docInitScript')
+        .val(scriptTpl);
 }
 
-window.docInitCallbackFunc = function () {
+window.docInitCallbackFunc = function() {
     for (const key in _configVarMap) {
-        const val = $('input[data-name="' + key + '"]').val();
+        const val = $('input[data-name="' + key + '"]')
+            .val();
         const inputId = `configKey${key}`;
-        $('#' + inputId).val(val);
+        $('#' + inputId)
+            .val(val);
     }
-}
+};
 
 function _configOnload() {
     const initScriptStr = localStorage.getItem('initScript');
     if (typeof initScriptStr === 'string') {
-        $('#docInitScript').val(initScriptStr);
+        $('#docInitScript')
+            .val(initScriptStr);
         window.eval(initScriptStr);
     }
 
@@ -95,10 +100,12 @@ function _configOnload() {
     }
 
     const headerSet = new Set();
-    $('[data-family="header"]').each(function () {
-        const headerName = $(this).data('name');
-        headerSet.add(headerName);
-    });
+    $('[data-family="header"]')
+        .each(function() {
+            const headerName = $(this)
+                .data('name');
+            headerSet.add(headerName);
+        });
     if (headerSet.size) {
         _configHeaderArray = Array.from(headerSet);
         for (let i = 0; i < _configHeaderArray.length; i++) {
@@ -115,44 +122,56 @@ function addConfigHeaderGroup() {
         const {inputId} = _configVarMap[key];
         _tplArr.push(`<div class="form-group"><label for="${inputId}" class="control-label">Header parameter ${key}:</label><textarea class="form-control" id="${inputId}"></textarea></div>`);
     }
-    $('#configHeaderGroup').html(_tplArr.join(''));
+    $('#configHeaderGroup')
+        .html(_tplArr.join(''));
 }
 
 export function InitConfigHelper() {
-    $('body').append(cTpl);
+    $('body')
+        .append(cTpl);
     _configOnload();
     if (_configLastHost) {
-        $('#configHost').val(_configLastHost);
+        $('#configHost')
+            .val(_configLastHost);
     }
-    $('#configModalBtn').click(function () {
-        $('#configModal').modal('toggle');
-    });
+    $('#configModalBtn')
+        .click(function() {
+            $('#configModal')
+                .modal('toggle');
+        });
 
-    $('#useScriptTplBtn').on('click', function () {
-        useScriptTpl();
-    });
+    $('#useScriptTplBtn')
+        .on('click', function() {
+            useScriptTpl();
+        });
 
     addConfigHeaderGroup();
 
-    $('#configSave').click(function () {
-        for (const key in _configVarMap) {
-            const inputId = `configKey${key}`;
-            const val = $('#' + inputId).val();
-            $('input[data-name="' + key + '"]').val(val);
-        }
-        const host = $('#configHost').val();
-        if (host) {
-            localStorage.setItem('requestHost', host);
-        }
-
-        const initScriptStr = $('#docInitScript').val();
-        if (initScriptStr !== '') {
-            localStorage.setItem('initScript', initScriptStr);
-            if (window.confirm('Page will reload.') === true) {
-                location.reload();
+    $('#configSave')
+        .click(function() {
+            for (const key in _configVarMap) {
+                const inputId = `configKey${key}`;
+                const val = $('#' + inputId)
+                    .val();
+                $('input[data-name="' + key + '"]')
+                    .val(val);
             }
-        }
+            const host = $('#configHost')
+                .val();
+            if (host) {
+                localStorage.setItem('requestHost', host);
+            }
 
-        $('#configModal').modal('hide');
-    });
+            const initScriptStr = $('#docInitScript')
+                .val();
+            if (initScriptStr !== '') {
+                localStorage.setItem('initScript', initScriptStr);
+                if (window.confirm('Page will reload.') === true) {
+                    location.reload();
+                }
+            }
+
+            $('#configModal')
+                .modal('hide');
+        });
 }
